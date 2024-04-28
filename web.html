@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recipe Management System</title>
+    <style>
+         body{
+            background-image: url("https://bimpos.com/sites/default/files/images/posts/412bbac9-b0db-41fe-85a3-015e4945df69.jpeg");
+            background-size: cover;
+            background-repeat: no-repeat;
+            font-size: 15px;
+            font-weight: bold;
+         }
+         .centered-label {
+    text-align: center;
+        }
+        .container {
+            justify-content: center;
+            text-align: center;
+
+        }
+        .content {
+         max-width: 500px;
+         margin: auto;
+         border:3px solid white;
+         padding:10px;
+         margin:0 300px;
+         background-color: white;
+}
+        .a {
+            width: 100%;
+            height: 25px;
+        }
+        #ingredientsInput,
+        #instructionsInput {
+            height: 40px;
+        }
+        #b {
+            background-color: rgb(27, 226, 27);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+    <h1>Recipe Management System</h1>
+    </div>
+    <div class="content">
+        <form action="/" method="post">
+
+            <!-- Inside the form element -->
+            <label for="title">Title:</label>
+            <br>
+            <input type="text" id="title" class="a" name="title">
+            <br><br>
+
+            <label for="ingredients">Ingredients:</label>
+            <br>
+            <textarea id="ingredientsInput" class="a" name="ingredients"></textarea>
+            <br><br>
+
+            <label for="instructions">Instructions:</label>
+            <br>
+            <textarea id="instructionsInput" class="a" name="instructions"></textarea>
+            <br><br>
+
+            <button id="b" type="submit">Add Recipe</button>
+        </form>
+    
+    </div>
+    <br>
+<div class="container">
+    <h2>Recipe List</h2>
+</div>
+    <div class="content">
+    <label for="recipeList">Select Recipe:</label><br>
+    <select id="recipeList" onchange="displaySelectedRecipe()">
+        <option value="">Select a Recipe</option>
+    </select><br><br>
+
+        <label>Ingredients:</label>
+        <br>
+        <textarea id="selectedIngredients" class="a" name="selectedIngredients" readonly></textarea>
+        <br><br>
+
+        <label>Instructions:</label>
+        <br>
+        <textarea id="selectedInstructions" class="a" name="selectedInstructions" readonly></textarea>
+        <br><br>
+    </div>
+
+    <!-- ... (unchanged code) ... -->
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            fetchRecipeList();
+        });
+    
+        async function fetchRecipeList() {
+            console.log('Fetching recipe list...');
+            const response = await fetch('/recipes');
+            const recipes = await response.json();
+    
+            const recipeList = document.getElementById('recipeList');
+            recipeList.innerHTML = '<option value="">Select a Recipe</option>';
+    
+            recipes.forEach(recipe => {
+                const option = document.createElement('option');
+                option.value = recipe.title;
+                option.textContent = recipe.title;
+                recipeList.appendChild(option);
+            });
+        }
+    
+        async function displaySelectedRecipe() {
+            var select = document.getElementById('recipeList');
+            var selectedTitle = select.options[select.selectedIndex].value;
+            console.log('Selected Title:', selectedTitle);
+    
+            if (selectedTitle) {
+                try {
+                    // Update the URL to fetch an individual recipe using its title
+                    const url = `/recipes/${encodeURIComponent(selectedTitle)}`;
+                    console.log('Fetching recipe from URL:', url);
+    
+                    const response = await fetch(url);
+                    console.log('Response status:', response.status);
+    
+                    if (!response.ok) {
+                        throw new Error(`Failed to fetch recipe. Status: ${response.status}`);
+                    }
+    
+                    const recipe = await response.json();
+                    console.log('Fetched recipe:', recipe);
+    
+                    document.getElementById('selectedIngredients').value = recipe.ingredients;
+                    document.getElementById('selectedInstructions').value = recipe.instructions;
+                } catch (error) {
+                    console.error('Error fetching recipe:', error);
+                }
+            } else {
+                document.getElementById('selectedIngredients').value = '';
+                document.getElementById('selectedInstructions').value = '';
+            }
+        }
+    </script>
+    
+    
+
+<!-- ... (unchanged code) ... -->
+
+</body>
+</html>
